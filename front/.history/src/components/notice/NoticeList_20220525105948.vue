@@ -1,0 +1,151 @@
+<template>
+  <b-container>
+    <div style="height: 150px"></div>
+    <b-row style="text-align: center">
+      <b-col class="text-primary font-weight-bold">
+        <h1 style="font-size: 55px">공지사항</h1>
+      </b-col>
+    </b-row>
+
+    <div style="height: 50px"></div>
+    <!-- 검색 바 -->
+    <b-row>
+      <b-col></b-col>
+      <b-col>
+        <b-input-group class="mt-3">
+          <b-form-input
+            v-model.trim="searchKeyword"
+            @keyup.enter="getQnaListBySubject"
+            placeholder="제목으로 검색"
+          ></b-form-input>
+          <b-input-group-append>
+            <b-button
+              variant="primary"
+              text="Button"
+              @click.prevent="getQnaListBySubject"
+              >검색</b-button
+            >
+          </b-input-group-append>
+        </b-input-group>
+      </b-col>
+      <b-col></b-col>
+    </b-row>
+    <!-- 검색 바 종료 -->
+
+    <!-- 등록하기 -->
+    <div style="height: 50px"></div>
+    <b-row>
+      <b-col cols="10"></b-col>
+      <b-col>
+        <!-- 관리자일 경우에만 등록하기 사용가능 -->
+        <router-link to="/noticeRegist" class="text-dark"
+          >등록 하기</router-link
+        >
+      </b-col>
+    </b-row>
+    <!-- 등록하기 종료-->
+
+    <div style="height: 10px"></div>
+    <!-- 공지사항 리스트 불러오기 -->
+    <b-row style="text-align: center">
+      <b-col></b-col>
+      <b-col cols="10">
+        <!--리스트 불러오기 종료-->
+        <b-table
+          :fields="fields"
+          :items="questions"
+          hover
+          responsive="lg"
+          :per-page="perPage"
+          :current-page="currentPage"
+          id="questionTable"
+        >
+          <template #cell(subject)="data">
+            <router-link :to="'/question/' + data.item.qnaNo" class="text-dark">
+              {{ data.item.subject }}
+            </router-link>
+          </template>
+        </b-table>
+        <!--리스트 불러오기 종료-->
+        <div style="height: 10px"></div>
+        <!--페이징 처리-->
+        <b-row>
+          <b-col></b-col>
+          <b-col>
+            <b-pagination
+              v-model="currentPage"
+              :total-rows="rows"
+              :per-page="perPage"
+              aria-controls="questionTable"
+            >
+            </b-pagination>
+          </b-col>
+          <b-col></b-col>
+        </b-row>
+        <!-- 페이징 처리 종료 -->
+      </b-col>
+      <b-col></b-col>
+    </b-row>
+    <!-- 공지사항 리스트 불러오기 종료-->
+  </b-container>
+</template>
+
+<script>
+import { mapState, mapActions } from "vuex";
+
+const noticeStore = "noticeStore";
+
+export default {
+  data() {
+    return {
+      fields: [
+        { key: "noticeNo", label: "글번호", tdClass: "tdClass" },
+        { key: "subject", label: "제목", tdClass: "tdSubject" },
+        { key: "userId", label: "작성자", tdClass: "tdClass" },
+        { key: "regtime", label: "작성시간", tdClass: "tdClassTwo" },
+      ],
+      searchKeyword: "",
+      perPage: 5, //몇개로 나누어서 페이지 처리 할 것인지
+      currentPage: 1, // 디폴트 페이지는 몇페이지로 할 것인지.
+    };
+  },
+
+  computed: {
+    ...mapState(noticeStore, ["notices"]),
+    rows() {
+      return this.notices.length; // 테이블 길이 보고 상태 변경.
+    },
+  },
+
+  created() {
+    this.setNotices();
+  },
+
+  methods: {
+    ...mapActions(qnaStore, ["setQuestions", "searchQuestionBySubject"]),
+
+    getQnaListBySubject() {
+      if (this.searchKeyword == "") {
+        this.setQuestions();
+        return;
+      }
+      this.searchQuestionBySubject(this.searchKeyword);
+    },
+  },
+};
+</script>
+
+<style>
+.tdClass {
+  width: 80px;
+  text-align: center;
+}
+.tdSubject {
+  width: 300px;
+  text-align: center;
+}
+.tdClassTwo {
+  width: 50px;
+  text-align: center;
+}
+</style>

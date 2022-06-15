@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.happyhouse.model.mapper.UserMapper">
+
+	<!-- 로그인 -->
+	<select id="login" parameterType="user" resultMap="userInfoList">
+		select id, name, email, contact
+		from userinfo
+		where id = #{id} and pass = #{pass}
+	</select>
+	<resultMap type="user" id="userInfoList">
+		<id column="id" property="id"/>
+        <result column="pass" property="pass"/>
+        <result column="name" property="name"/>
+        <result column="email" property="email"/>
+        <result column="contact" property="contact"/>
+        <collection property="interest" javaType="list" ofType="interestInfo" select="selectInterestList" column="id"></collection>
+	</resultMap>
+	<select id="selectInterestList" resultType="interestInfo">
+		select aptCode
+		from user_interest
+		where userId = #{userId}
+	</select>
+
+	<!-- 회원정보 등록 -->
+	<insert id="registUser" parameterType="user">
+		insert into userinfo(id, pass, name, email, contact)
+		value (#{id}, #{pass}, #{name}, #{email}, #{contact})
+	</insert>
+
+	<!-- 회원정보 수정 -->
+	<update id="modifyUser" parameterType="user">
+		update userinfo
+		set name = #{name}, email = #{email}, contact = #{contact}
+		where id = #{id}
+	</update>
+	
+	<!-- 회원 비밀번호 조회 -->
+	<select id="selectUserPassword" parameterType="user" resultType="String">
+		select id
+		from userinfo
+		where id = #{id} and pass = #{pass}
+	</select>
+	
+	<!-- 회원 비밀번호 수정 -->
+	<update id="modifyUserPassword" parameterType="user">
+		update userinfo
+		set pass = #{pass}
+		where id = #{id}
+	</update>
+
+	<!-- 회원정보 삭제 -->
+	<delete id="deleteUser" parameterType="String">
+		delete from userinfo
+		where id = #{id}
+	</delete>
+
+	<!-- 회원정보 검색 -->
+	<select id="userList" resultType="user">
+		select id, pass, name
+		from userinfo
+	</select>
+	
+
+	
+	
+	<!-- 관심 지역 가져오기 -->
+	<select id="selectInterest" parameterType="String" resultType="Integer">
+        select aptCode
+		from user_interest
+		where userId = #{userId}
+    </select>
+    
+    <!-- 관심 지역 등록 -->
+    <insert id="insertInterest" parameterType="InterestInfo">
+		insert into user_interest(userId, aptCode)
+		values (#{userId}, #{aptCode})
+	</insert>
+	
+    <!-- 관심 지역 삭제 -->
+    <delete id="deleteInterest" parameterType="InterestInfo">
+		delete from user_interest 
+		where userId = #{userId} and aptCode = #{aptCode}
+	</delete>
+
+</mapper>

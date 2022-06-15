@@ -1,0 +1,113 @@
+<template>
+  <b-container class="bv-example-row">
+    <div style="height: 50px"></div>
+    <b-row style="text-align: center">
+      <b-col class="text-primary font-weight-bold">
+        <h1 style="font-size: 50px">상세보기</h1>
+      </b-col>
+    </b-row>
+    <div style="height: 50px"></div>
+    <b-row>
+      <b-col class="text-right mb-3">
+        <b-button variant="outline-primary" v-on:click="moveUpdate" class="mr-2"
+          >수정</b-button
+        >
+        <b-button variant="outline-primary" @click="moveDelete" class="mr-2"
+          >삭제</b-button
+        >
+        <b-button variant="outline-primary" @click="moveList">목록</b-button>
+      </b-col>
+    </b-row>
+
+    <b-row>
+      <b-col>
+        <b-card v-if="question">
+          <b-card-header class="text-center">
+            <div>
+              <h3>{{ question.subject }}</h3>
+            </div>
+          </b-card-header>
+          <b-card-body>
+            <b-row>
+              <b-col>작성자: {{ question.userId }}</b-col>
+              <b-col cols="6"></b-col>
+              <b-col>작성 시간: {{ question.regtime }}</b-col>
+            </b-row>
+            <!-- 작성자 ID -->
+            <hr class="border border-dark" />
+            <!-- 내용 -->
+            <span style="white-space: pre-line">
+              {{ question.content }}
+            </span>
+          </b-card-body>
+        </b-card>
+      </b-col>
+    </b-row>
+    <div style="height: 30px"></div>
+    <b-row>
+      <b-col>
+        <question-chat-input></question-chat-input>
+      </b-col>
+    </b-row>
+    <hr class="border border-dark mt-1 mb-1" />
+    <b-row>
+      <div class="mt-3">댓글 : N개</div>
+      <b-col>
+        <question-chat-list> </question-chat-list>
+      </b-col>
+    </b-row>
+  </b-container>
+</template>
+
+<script>
+import QuestionChatInput from "@/components/faq/QuestionChatInput.vue";
+import QuestionChatList from "@/components/faq/QuestionChatList.vue";
+import { mapState, mapActions } from "vuex";
+
+const qnaStore = "qnaStore";
+
+export default {
+  data() {
+    return {
+      content: "",
+    };
+  },
+  components: {
+    QuestionChatList,
+    QuestionChatInput,
+  },
+  computed: {
+    ...mapState(qnaStore, ["question"]),
+  },
+
+  async created() {
+    const qnaNo = this.$route.params.qnaNo;
+    console.log(this.question);
+    await this.setDetailQuestion(qnaNo);
+    console.log(this.question);
+  },
+
+  methods: {
+    ...mapActions(qnaStore, ["setDetailQuestion", "deleteQuestion"]),
+
+    //수정페이지 이동
+    moveUpdate() {
+      this.$router.push(`/question/modify/${this.question.qnaNo}`);
+    },
+    //삭제페이지 이동
+    moveDelete() {
+      if (confirm("삭제 확인")) {
+        this.deleteQuestion(this.question.qnaNo);
+        this.$router.push(`/question/delete/${this.question.qnaNo}`);
+        this.moveList();
+      }
+    },
+    //목록페이지 이동
+    moveList() {
+      this.$router.push(`/question`);
+    },
+  },
+};
+</script>
+
+<style></style>

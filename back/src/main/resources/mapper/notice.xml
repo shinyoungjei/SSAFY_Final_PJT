@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="com.ssafy.happyhouse.model.mapper.NoticeMapper">
+
+	<!-- start get notice list -->
+	<select id="selectAllNotice" resultType="Notice">
+		select noticeNo, userId, subject, hit, regtime
+		from notice_board
+		order by noticeNo desc;
+	</select>
+	<!-- end get notice list -->
+
+
+	<!-- start get notice detail view -->
+	<select id="selectDetailNotice" parameterType="int"
+		resultType="Notice">
+		select noticeNo, userId, subject, content, hit, regtime
+		from
+		notice_board
+		where noticeNo = #{noticeNo}
+	</select>
+	<!-- end get notice detail view -->
+
+	<!-- start update notice -->
+	<update id="updateNotice" parameterType="Notice">
+		update notice_board
+		set subject
+		= #{subject},
+		content = #{content},
+		regtime = now()
+		where noticeNo = #{noticeNo}
+	</update>
+	<!-- end update notice -->
+
+	<!-- start delete notice -->
+	<delete id="deleteNotice" parameterType="int">
+		delete from notice_board
+		where noticeNo = #{noticeNo}
+	</delete>
+	<!-- end delete notice -->
+
+	<!-- start regist notice -->
+	<insert id="insertNotice" parameterType="Notice">
+		insert into
+		notice_board(userId, subject, content, regtime)
+		values (#{userId},
+		#{subject}, #{content}, now())
+	</insert>
+	<!-- end regist notice -->
+
+	<!-- start search notice by subject -->
+	<select id="selectNoticeBySubject" parameterType="String"
+		resultType="Notice">
+		select noticeNo, userId, subject, hit, regtime
+		from notice_board
+		where subject like concat('%', #{subject}, '%')
+	</select>
+
+</mapper>

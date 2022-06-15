@@ -1,0 +1,3 @@
+import convenience store table dump data
+
+MySQL → convenience_store 테이블 우클릭 → Table Data Import Wizard → Browse.. → 편의점.csv 선택 -> next → next → next → next

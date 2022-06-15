@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.happyhouse.model.mapper.AptMapper">
+
+	<select id="selectSido" resultType="AptCode">
+		select left(sidoCode,2) sidoCode, sidoName
+		from sidocode
+		order by sidoCode
+	</select>
+	
+	<select id="selectGugunInSido" parameterType="string" resultType="AptCode">
+		select left(gugunCode,5) gugunCode, gugunName
+		from guguncode
+		where left(gugunCode,2) = #{sido}
+		order by gugunCode
+	</select>
+	
+	<select id="selectDongInGugun" parameterType="string" resultType="AptInfo">
+		select distinct dongName, dongCode
+		from houseinfo
+		where left(dongCode, 5) = #{gugun}
+		order by dongName
+	</select>
+	
+	<select id="selectAptInDong" parameterType="string" resultType="AptInfo">
+		select h.aptCode, h.aptName, h.buildyear, h.dongCode, h.dongName, h.jibun, h.lat, h.lng, si.sidoname, gu.gugunname,
+				(select dealAmount from housedeal where aptCode = h.aptCode and no = (select max(no) from housedeal where aptCode = h.aptCode)) recentPrice
+		from houseinfo h
+		left join sidocode si
+		on left(h.dongcode,2) = left(si.sidocode,2)
+		left join guguncode gu
+		on left(h.dongcode,5) = left(gu.guguncode,5)
+		where dongCode = #{dong} 
+		order by aptName
+	</select>
+	
+	<select id="selectAptByAptName" parameterType="string" resultType="AptInfo">
+		select h.aptCode, h.aptName, h.buildyear, h.dongCode, h.dongName, h.jibun, h.lat, h.lng, si.sidoname, gu.gugunname,
+				(select dealAmount from housedeal where aptCode = h.aptCode and no = (select max(no) from housedeal where aptCode = h.aptCode)) recentPrice
+		from houseinfo h
+		left join sidocode si
+		on left(h.dongcode,2) = left(si.sidocode,2)
+		left join guguncode gu
+		on left(h.dongcode,5) = left(gu.guguncode,5)
+		where h.aptName like concat('%', #{aptName}, '%') 
+		order by aptName
+	</select>
+	
+	<select id="selectAptDetailInfo" parameterType="string" resultType="AptInfo">
+		select hi.aptCode, hi.aptName, hi.buildYear, hi.jibun, hi.lat, hi.lng, hi.dongCode, dc.sidoName, dc.gugunName, dc.dongName, hi.hit
+		from houseinfo hi
+        join dongcode dc
+        on hi.dongCode = dc.dongCode
+		where aptCode = #{aptCode};
+	</select>
+	
+	<select id="selectRecentlyAptDealInfo" parameterType="String" resultType="AptDealInfo">
+		select dealAmount, dealYear, dealMonth, dealDay, area, floor
+		from housedeal
+		where aptCode = #{aptCode}
+		order by dealYear desc, dealMonth desc, dealDay desc
+		limit 5;
+	</select>
+	
+	<update id="updateAptHit" parameterType="String">
+		update houseinfo
+		set hit = hit + 1
+		where aptCode = #{aptCode};
+	</update>
+	
+	<select id="selectHighestHitApt" resultType="AptInfo">
+		select hi.aptCode, hi.aptName, hi.buildYear, hi.jibun, hi.lat, hi.lng, dc.sidoName, dc.gugunName, dc.dongName, hi.hit
+		from houseinfo hi
+        join dongcode dc
+        on hi.dongCode = dc.dongCode order by hit desc limit 6;
+	</select>
+
+</mapper>
